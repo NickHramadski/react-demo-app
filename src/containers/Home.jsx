@@ -1,13 +1,22 @@
 import React from "react";
-import "./Home.css";
+import { connect } from 'react-redux';
+
 import NotesList from "../components/NotesList";
 
-export default function Home() {
+function Home (props) {
   return (
     <div className="Home">
       <div className="notes">
-        <NotesList></NotesList>
+        <NotesList notes={props.notes}></NotesList>
       </div>
     </div>
   );
 }
+
+const mapStateToStore = state => {
+  return {
+    notes: state.notes.list
+  };
+};
+
+export default connect(mapStateToStore)(Home);

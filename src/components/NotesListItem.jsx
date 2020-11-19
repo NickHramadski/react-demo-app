@@ -15,7 +15,7 @@ export default function NotesListItem(props) {
 
 NotesListItem.propTypes = {
   note: PropTypes.shape({
-    noteId: PropTypes.string,
+    noteId: PropTypes.number,
     content: PropTypes.string,
     createdAt: PropTypes.string
   })

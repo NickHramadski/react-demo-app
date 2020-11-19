@@ -1,60 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { FormGroup, FormControl } from "react-bootstrap";
+import { connect } from 'react-redux';
+
 import LoaderButton from "../components/LoaderButton";
 import { onError } from "../libs/errorLib";
-import { DEFAULT_NOTES } from "../libs/constLib";
+import * as noteActionTypes from "../store/notes/actions"
 import "./NoteDetails.css";
 
-export default function NoteDetails() {
-  // TODO: Get data from REDUX here
-  const storedNotes = DEFAULT_NOTES;
+function NoteDetails(props) {
   const { id } = useParams();
   const history = useHistory();
   const [note, setNote] = useState(null);
   const [content, setContent] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    function loadNote() {
-      const result = storedNotes.find(note => note.noteId === id)
-      return Promise.resolve(result);
-    }
+    const note = props.notes.find(note => note.noteId === +id);
+    if (!note) return;
 
-    async function onLoad() {
-      try {
-        const note = await loadNote();
-        const { content } = note;
-
-        setContent(content);
-        setNote(note);
-      } catch (e) {
-        onError(e);
-      }
-    }
-
-    onLoad();
-  }, [id, storedNotes]);
+    setNote(note);
+    setContent(note.content);
+  }, []);
 
   function validateForm() {
     return content.length > 0;
   }
 
-  function saveNote(data) {
-    alert(`TODO: Update note #${id} '${data.content}' data to the REDUX store`);
-  }
-
   async function handleSubmit(event) {
     event.preventDefault();
 
-    setIsLoading(true);
-
     try {
-      saveNote({ content });
+      props.onEditNote(note.noteId, { content });
       history.push("/");
     } catch (e) {
       onError(e);
-      setIsLoading(false);
     }
   }
 
@@ -74,7 +53,6 @@ export default function NoteDetails() {
             type="submit"
             bsSize="large"
             bsStyle="primary"
-            isLoading={isLoading}
             disabled={!validateForm()}
           >
             Save
@@ -84,3 +62,17 @@ export default function NoteDetails() {
     </div>
   );
 }
+
+const mapStateToStore = state => {
+  return {
+    notes: state.notes.list
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onEditNote: (noteId, changes) => dispatch({ type: noteActionTypes.EDIT_NOTE, payload: { noteId, changes } })
+  }
+};
+
+export default connect(mapStateToStore, mapDispatchToProps)(NoteDetails);

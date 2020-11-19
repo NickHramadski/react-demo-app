@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { FormGroup, FormControl } from "react-bootstrap";
+import { connect } from 'react-redux';
+
 import LoaderButton from "../components/LoaderButton";
 import { onError } from "../libs/errorLib";
+import * as noteActionTypes from "../store/notes/actions"
 import "./NewNote.css";
 
-export default function NewNote() {
+function NewNote(props) {
   const history = useHistory();
   const [content, setContent] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   function validateForm() {
     return content.length > 0;
@@ -17,20 +19,12 @@ export default function NewNote() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    setIsLoading(true);
-
     try {
-      createNote({ content });
+      props.onAddNote({ content });
       history.push("/");
     } catch (e) {
       onError(e);
-      setIsLoading(false);
     }
-  }
-
-  function createNote(data) {
-    const note = Object.assign(data, { noteId: new Date().toLocaleDateString(), createdAt: new Date().toLocaleDateString() });
-    alert(`TODO: Add new note #${note.content} data to the REDUX store`);
   }
 
   return (
@@ -48,7 +42,6 @@ export default function NewNote() {
           type="submit"
           bsSize="large"
           bsStyle="primary"
-          isLoading={isLoading}
           disabled={!validateForm()}
         >
           Create
@@ -57,3 +50,11 @@ export default function NewNote() {
     </div>
   );
 }
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onAddNote: (data) => dispatch({ type: noteActionTypes.ADD_NOTE, payload: data })
+  }
+};
+
+export default connect(null, mapDispatchToProps)(NewNote);

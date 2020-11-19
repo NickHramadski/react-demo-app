@@ -1,10 +1,9 @@
 import React from "react";
 import { Route, Redirect, useLocation } from "react-router-dom";
-import { useAppContext } from "../libs/contextLib";
+import { connect } from 'react-redux';
 
-export default function AuthenticatedRoute({ children, ...rest }) {
+function AuthenticatedRoute({ children, isAuthenticated, ...rest }) {
   const { pathname, search } = useLocation();
-  const { isAuthenticated } = useAppContext();
   return (
     <Route {...rest}>
       {isAuthenticated ? (
@@ -17,3 +16,11 @@ export default function AuthenticatedRoute({ children, ...rest }) {
     </Route>
   );
 }
+
+const mapStateToStore = state => {
+  return {
+    isAuthenticated: state.auth.loggedIn
+  };
+};
+
+export default connect(mapStateToStore)(AuthenticatedRoute);
