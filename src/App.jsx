@@ -1,63 +1,64 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Nav, Navbar, NavItem } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import { connect } from 'react-redux';
+
 import ErrorBoundary from "./components/ErrorBoundary";
-import { AppContext } from "./libs/contextLib";
 import Routes from "./Routes";
+import * as authActionTypes from "./store/auth/actions"
 import "./App.css";
 
-function App() {
+function App(props) {
   const history = useHistory();
-  const [isAuthenticating, setIsAuthenticating] = useState(true);
-  const [isAuthenticated, userHasAuthenticated] = useState(false);
-
-  useEffect(() => {onLoad();}, []);
-
-  async function onLoad() {
-    setIsAuthenticating(false);
-  }
 
   async function handleLogout() {
-    userHasAuthenticated(false);
-
+    props.onLogout();
     history.push("/login");
   }
 
   return (
-    !isAuthenticating && (
-      <div className="App container">
-        <Navbar fluid collapseOnSelect>
-          <Navbar.Header>
-            <Navbar.Brand>
-              <Link to="/">React Demo App</Link>
-            </Navbar.Brand>
-            <Navbar.Toggle />
-          </Navbar.Header>
-          <Navbar.Collapse>
-            <Nav pullRight>
-              {isAuthenticated ? (
-                <>
-                  <NavItem onClick={handleLogout}>Logout</NavItem>
-                </>
-              ) : (
-                <>
-                  <LinkContainer to="/login">
-                    <NavItem>Login</NavItem>
-                  </LinkContainer>
-                </>
-              )}
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
-        <ErrorBoundary>
-          <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
-            <Routes />
-          </AppContext.Provider>
-        </ErrorBoundary>
-      </div>
-    )
+    <div className="App container">
+      <Navbar fluid collapseOnSelect>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <Link to="/">React Demo App</Link>
+          </Navbar.Brand>
+          <Navbar.Toggle />
+        </Navbar.Header>
+        <Navbar.Collapse>
+          <Nav pullRight>
+            {props.isAuthenticated ? (
+              <>
+                <NavItem onClick={handleLogout}>Logout</NavItem>
+              </>
+            ) : (
+              <>
+                <LinkContainer to="/login">
+                  <NavItem>Login</NavItem>
+                </LinkContainer>
+              </>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+      <ErrorBoundary>
+        <Routes />
+      </ErrorBoundary>
+    </div>
   );
 }
 
-export default App;
+const mapStateToStore = state => {
+  return {
+    isAuthenticated: state.auth.loggedIn
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onLogout: () => dispatch({ type: authActionTypes.LOGOUT })
+  }
+};
+
+export default connect(mapStateToStore, mapDispatchToProps)(App);

@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import { useAppContext } from "../libs/contextLib";
+import { connect } from 'react-redux';
 
 function querystring(name, url = window.location.href) {
   name = name.replace(/[[]]/g, "\\$&");
@@ -18,16 +18,23 @@ function querystring(name, url = window.location.href) {
   return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-export default function UnauthenticatedRoute({ children, ...rest }) {
-  const { isAuthenticated } = useAppContext();
+function UnauthenticatedRoute({ children, isAuthenticated, ...rest }) {
   const redirect = querystring("redirect");
   return (
     <Route {...rest}>
       {!isAuthenticated ? (
         children
       ) : (
-        <Redirect to={redirect === "" || redirect === null ? "/" : redirect} />
+        <Redirect to={redirect ? redirect : "/"} />
       )}
     </Route>
   );
 }
+
+const mapStateToStore = state => {
+  return {
+    isAuthenticated: state.auth.loggedIn
+  };
+};
+
+export default connect(mapStateToStore)(UnauthenticatedRoute);

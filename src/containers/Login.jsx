@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { FormGroup, FormControl, ControlLabel } from "react-bootstrap";
+import { connect } from 'react-redux';
+
 import LoaderButton from "../components/LoaderButton";
-import { useAppContext } from "../libs/contextLib";
 import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
+import * as authActionTypes from "../store/auth/actions"
 import "./Login.css";
 
-export default function Login() {
-  // TODO: Replace context with REDUX here
-  const { userHasAuthenticated } = useAppContext();
-  const [isLoading, setIsLoading] = useState(false);
+function Login(props) {
   const [fields, handleFieldChange, setFormFieldValue] = useFormFields({
     email: "",
     password: ""
@@ -28,14 +27,11 @@ export default function Login() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    setIsLoading(true);
-
     try {
       await signIn();
-      userHasAuthenticated(true);
+      props.onAuthenticateUser(fields.email);
     } catch (e) {
       onError(e);
-      setIsLoading(false);
     }
   }
 
@@ -65,7 +61,6 @@ export default function Login() {
           block
           type="submit"
           bsSize="large"
-          isLoading={isLoading}
           disabled={!validateForm()}
         >
           Login
@@ -74,3 +69,11 @@ export default function Login() {
     </div>
   );
 }
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onAuthenticateUser: (email) => dispatch({ type: authActionTypes.LOGIN, payload: email })
+  }
+};
+
+export default connect(null, mapDispatchToProps)(Login);
