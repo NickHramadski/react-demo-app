@@ -1,59 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
-import { FormGroup, FormControl } from "react-bootstrap";
 import { connect } from 'react-redux';
 
-import LoaderButton from "../components/LoaderButton";
+import NotesForm from "../components/NotesForm";
 import { onError } from "../libs/errorLib";
-import * as noteActionTypes from "../store/notes/actions"
-import "./NewNote.css";
+import { addNote } from "../store/notes/actions"
 
 function NewNote(props) {
   const history = useHistory();
-  const [content, setContent] = useState("");
 
-  function validateForm() {
-    return content.length > 0;
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-
+  async function handleSubmit(data) {
     try {
-      props.onAddNote({ content });
+      props.onAddNote(data);
       history.push("/");
     } catch (e) {
       onError(e);
     }
   }
 
-  return (
-    <div className="NewNote">
-      <form onSubmit={handleSubmit}>
-        <FormGroup controlId="content">
-          <FormControl
-            value={content}
-            componentClass="textarea"
-            onChange={e => setContent(e.target.value)}
-          />
-        </FormGroup>
-        <LoaderButton
-          block
-          type="submit"
-          bsSize="large"
-          bsStyle="primary"
-          disabled={!validateForm()}
-        >
-          Create
-        </LoaderButton>
-      </form>
-    </div>
-  );
+  return <NotesForm onSubmit={data => handleSubmit(data)}></NotesForm>;
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    onAddNote: (data) => dispatch({ type: noteActionTypes.ADD_NOTE, payload: data })
+    onAddNote: (data) => dispatch(addNote(data))
   }
 };
 

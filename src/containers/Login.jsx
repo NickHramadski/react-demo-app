@@ -5,13 +5,17 @@ import { connect } from 'react-redux';
 import LoaderButton from "../components/LoaderButton";
 import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
-import * as authActionTypes from "../store/auth/actions"
+import { getLoginError } from "../store/"
+import { login } from "../store/auth/actions"
+import { loadNotes } from '../store/notes/actions'
+
 import "./Login.css";
 
 function Login(props) {
+  // const [validated, setValidated] = useState(false);
   const [fields, handleFieldChange, setFormFieldValue] = useFormFields({
-    email: "",
-    password: ""
+    email: "user1",
+    password: "qwerty123"
   });
 
   function validateForm() {
@@ -19,9 +23,9 @@ function Login(props) {
   }
 
   async function signIn() {
-    if ((fields.email === 'admin@admin.com') && (fields.password === '111')) return;
+    props.onLoadNotes();
+    props.onAuthenticateUser(fields.email, fields.password);
     setFormFieldValue('password', '');
-    throw new Error('Invalid login! Try admin@admin.com with password: 111');
   }
 
   async function handleSubmit(event) {
@@ -29,10 +33,13 @@ function Login(props) {
 
     try {
       await signIn();
-      props.onAuthenticateUser(fields.email);
     } catch (e) {
       onError(e);
     }
+  }
+
+  function renderLoginError() {
+    return props.loginError ? (<div className="Error">Invalid credentials. Please try again...</div>) : null;
   }
 
   return (
@@ -42,20 +49,27 @@ function Login(props) {
           <ControlLabel>Email</ControlLabel>
           <FormControl
             autoFocus
-            type="email"
+            required
             value={fields.email}
             onChange={handleFieldChange}
-            placeholder="admin@admin.com"
+            placeholder="user1"
           />
+          {/* <FormControlFeedback type="invalid">
+            Please enter your user id
+          </FormControlFeedback> */}
         </FormGroup>
         <FormGroup controlId="password" bsSize="large">
           <ControlLabel>Password</ControlLabel>
           <FormControl
+            required
             type="password"
             value={fields.password}
             onChange={handleFieldChange}
-            placeholder="111"
+            placeholder="qwerty123"
           />
+          {/* <FormControlFeedback type="invalid">
+            Please enter your password
+          </FormControlFeedback> */}
         </FormGroup>
         <LoaderButton
           block
@@ -66,14 +80,22 @@ function Login(props) {
           Login
         </LoaderButton>
       </form>
+      {renderLoginError()}
     </div>
   );
 }
 
+const mapStateToStore = state => {
+  return {
+    loginError: getLoginError(state)
+  };
+};
+
 const mapDispatchToProps = dispatch => {
   return {
-    onAuthenticateUser: (email) => dispatch({ type: authActionTypes.LOGIN, payload: email })
+    onAuthenticateUser: (user, password) => dispatch(login(user, password)),
+    onLoadNotes: () => dispatch(loadNotes())
   }
 };
 
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToStore, mapDispatchToProps)(Login);

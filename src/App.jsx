@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 
 import ErrorBoundary from "./components/ErrorBoundary";
 import Routes from "./Routes";
-import * as authActionTypes from "./store/auth/actions"
+import { getIsUserLoggedIn } from "./store/";
+import { logout } from "./store/auth/actions";
 import "./App.css";
 
 function App(props) {
@@ -51,13 +52,13 @@ function App(props) {
 
 const mapStateToStore = state => {
   return {
-    isAuthenticated: state.auth.loggedIn
+    isAuthenticated: getIsUserLoggedIn(state)
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLogout: () => dispatch({ type: authActionTypes.LOGOUT })
+    onLogout: () => dispatch(logout())
   }
 };
 
