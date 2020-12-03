@@ -7,7 +7,7 @@ import { getFilteredNotes } from '../store/';
 import { getSearchString } from '../store/';
 import { loadNotes, searchNotes } from '../store/notes/actions';
 
-function Home (props) {
+export function Home (props) {
   function searchStringChange(e) {
     props.onSearchNotes(e.target.value)
   }
