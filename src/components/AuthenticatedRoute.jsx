@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Redirect, useLocation } from "react-router-dom";
 import { connect } from 'react-redux';
+import { getIsUserLoggedIn } from "../store/";
 
 function AuthenticatedRoute({ children, isAuthenticated, ...rest }) {
   const { pathname, search } = useLocation();
@@ -19,7 +20,7 @@ function AuthenticatedRoute({ children, isAuthenticated, ...rest }) {
 
 const mapStateToStore = state => {
   return {
-    isAuthenticated: state.auth.loggedIn
+    isAuthenticated: getIsUserLoggedIn(state)
   };
 };
 

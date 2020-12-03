@@ -1,37 +1,36 @@
+import { Map } from 'immutable';
 import * as actionTypes from './actions';
 
 const initialState = {
-    list: [
-        { noteId: 101, content: 'Note 1', createdAt: new Date().toDateString() },
-        { noteId: 102, content: 'Note 2', createdAt: new Date().toDateString() },
-        { noteId: 103, content: 'Note 3', createdAt: new Date().toDateString() },
-    ]
+    searchString: '',
+    map: Map(),
+    error: null
 };
 
 const reducer = (state = initialState, action) => {
     switch(action.type) {
-        case(actionTypes.ADD_NOTE):
+        case(actionTypes.LOAD_NOTES_SUCCESS): 
             return {
                 ...state,
-                list: state.list.concat({ 
-                    ...action.payload,
-                    noteId: guid(),
-                    createdAt: new Date().toLocaleDateString()
-                })
+                map: Map(action.payload)
             };
-        case(actionTypes.EDIT_NOTE): {
-            const notes = [...state.list];
-            let idx = notes.findIndex(note => note.noteId === action.payload.noteId);
-            notes[idx] =  {...notes[idx], ...action.payload.changes, ...{ createdAt: new Date().toLocaleDateString() }};
-            return { ...state, list: notes };
+        case(actionTypes.SEARCH):
+            return {
+                ...state,
+                searchString: action.payload
+            };
+        case(actionTypes.ADD_NOTE_SUCCESS): {
+            return {
+                ...state,
+                map: state.map.set(action.payload.noteId, action.payload)
+            };
+        }
+        case(actionTypes.UPDATE_NOTE_SUCCESS): {
+            return { ...state, map: state.map.set(action.payload.noteId, action.payload.data) };
         }
         default:
             return state;
     }
-}
-
-function guid() {
-    return Math.floor(Math.random() * 100);
 }
 
 export default reducer;

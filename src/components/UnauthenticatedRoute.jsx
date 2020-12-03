@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
+import { getIsUserLoggedIn } from "../store/";
 
 function querystring(name, url = window.location.href) {
   name = name.replace(/[[]]/g, "\\$&");
@@ -33,7 +34,7 @@ function UnauthenticatedRoute({ children, isAuthenticated, ...rest }) {
 
 const mapStateToStore = state => {
   return {
-    isAuthenticated: state.auth.loggedIn
+    isAuthenticated: getIsUserLoggedIn(state)
   };
 };
 
